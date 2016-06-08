@@ -34,7 +34,7 @@ class Calc_pi:
         return tf.div(tf.pow(tf.add(self.a(self.N), self.b(self.N)), 2.0), (tf.mul(4.0, self.t(self.N))))
 
 if __name__ == '__main__':
-    N = 10
+    N = 5
     c = Calc_pi(N)
     pi = c.get_pi()
 
