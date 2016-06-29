@@ -10,9 +10,10 @@ import Randgen
 
 class PolynomialCurve:
 
-    def __init__(self, N, M, trX, trY, target_y, target_x):
+    def __init__(self, N, M, K, trX, trY, target_y, target_x):
         self.N = N # number of flow
-        self.M = M # order of the polynomial
+        self.M = M # number of random variables
+        self.K = K # order of the polynomial
         self.trX = trX
         self.trY = trY
         self.t_y = target_y # just for plotting data
@@ -20,7 +21,7 @@ class PolynomialCurve:
 
     def y(self, x, w, b):
         _y = b
-        for i in range(0, self.M):
+        for i in range(0, self.K):
             _y += tf.mul(w[i], tf.pow(x, i + 1))
         return _y
 
@@ -29,9 +30,9 @@ class PolynomialCurve:
 
     def run(self):
         b = tf.Variable([0.0])
-        w = tf.Variable(tf.zeros(self.M))
-        x = tf.placeholder('float', shape = (100))
-        y = tf.placeholder('float', shape = (100))
+        w = tf.Variable(tf.zeros(self.K))
+        x = tf.placeholder('float', shape = (self.M))
+        y = tf.placeholder('float', shape = (self.M))
         y_hypo = self.y(x, w, b)
 
         # Define optimizer
@@ -53,7 +54,7 @@ class PolynomialCurve:
 
         self.w =[]
         self.w.append(sess.run(b[0]))
-        for i in range(0, self.M):
+        for i in range(0, self.K):
             self.w.append(sess.run(w[i]))
 
     def plot(self):
@@ -71,15 +72,15 @@ class PolynomialCurve:
 
     def plt_y(self, x):
         y = self.w[0]
-        for i in range(1, self.M + 1):
+        for i in range(1, self.K + 1):
             y += self.w[i] * np.power(x, i)
         return y
 
 if __name__ == '__main__':
     # Generate test data
-    n = 10000
-    m = 100
-    k = 5
+    n = 100000
+    m = 1000
+    k = 9
     sigma = 0.03
 
     r = Randgen.Randgen(m, n, sigma)
@@ -88,6 +89,6 @@ if __name__ == '__main__':
     target_y = list(r.sin_wave_target())[0]
     target_x = r.x[0]
 
-    p = PolynomialCurve(n, k, trX, trY, target_y, target_x)
+    p = PolynomialCurve(n, m, k, trX, trY, target_y, target_x)
     p.run()
     p.plot()
