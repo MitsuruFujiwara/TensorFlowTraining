@@ -10,28 +10,33 @@ import Randgen
 
 class PolynomialCurve:
 
-    def __init__(self, M, input_data, target_data):
-        self.M = M # number of flow
-        self.input_data = input_data
-        self.target_data = target_data
+    def __init__(self, N, M, trX, trY, target_y, target_x):
+        self.N = N # number of flow
+        self.M = M # order of the polynomial
+        self.trX = trX
+        self.trY = trY
+        self.t_y = target_y # just for plotting data
+        self.t_x = target_x # just for plotting data
 
-    def y(self):
-        x = self.input_data
-        self.W0 = tf.Variable(np.random.random())
-        self.W1 = tf.Variable(np.random.random())
-        self.W2 = tf.Variable(np.random.random())
-        self.W3 = tf.Variable(np.random.random())
-        _y = self.W0 + self.W1 * x + self.W2 * x ** 2.0 + self.W3 * x ** 3.0
+    def y(self, x, w, b):
+        _y = b
+        for i in range(0, self.M):
+            _y += tf.mul(w[i], tf.pow(x, i + 1))
         return _y
 
-    def loss(self):
-        _loss = tf.reduce_mean(tf.square(self.y() - self.target_data))
-        return _loss
+    def loss(self, hypo_y, y):
+        return tf.reduce_mean(tf.square(hypo_y - y))
 
     def run(self):
+        b = tf.Variable([0.0])
+        w = tf.Variable(tf.zeros(self.M))
+        x = tf.placeholder('float', shape = (100))
+        y = tf.placeholder('float', shape = (100))
+        y_hypo = self.y(x, w, b)
+
         # Define optimizer
         optimizer = tf.train.GradientDescentOptimizer(0.5)
-        train = optimizer.minimize(self.loss())
+        train = optimizer.minimize(self.loss(y_hypo, y))
 
         # For initializing the variables.
         init = tf.initialize_all_variables()
@@ -41,19 +46,48 @@ class PolynomialCurve:
         sess.run(init)
 
         # Fit the plane.
-        for step in xrange(0, self.M):
-            sess.run(train)
+        for i in xrange(0, self.N):
+            sess.run(train, feed_dict = {x: self.trX[i], y: self.trY[i]})
+            if i % 100 == 0:
+                print "Number of flow = " + str(i)
 
-        print sess.run(self.W0), sess.run(self.W1), sess.run(self.W2), sess.run(self.W3)
+        self.w =[]
+        self.w.append(sess.run(b[0]))
+        for i in range(0, self.M):
+            self.w.append(sess.run(w[i]))
+
+    def plot(self):
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        x = np.linspace(0.0, 1.0, num=101)
+
+        ax.plot(x, self.plt_y(x), 'k-', label='fitted line', linewidth=10, alpha=0.3)
+        ax.scatter(self.t_x, self.t_y, label='target data')
+        plt.xlabel('x')
+        plt.ylabel('y')
+        plt.legend(loc='best',fancybox=True, shadow=True)
+        plt.grid(True)
+        plt.show()
+
+    def plt_y(self, x):
+        y = self.w[0]
+        for i in range(1, self.M + 1):
+            y += self.w[i] * np.power(x, i)
+        return y
 
 if __name__ == '__main__':
-    N = 100
-    sigma = 0.3
+    # Generate test data
+    n = 10000
+    m = 100
+    k = 5
+    sigma = 0.03
 
-    r = Randgen.Randgen(N, sigma)
-    s = r.sin_wave_input()
-    t = r.sin_wave_target()
+    r = Randgen.Randgen(m, n, sigma)
+    trY = list(r.sin_wave_y())
+    trX = r.x
+    target_y = list(r.sin_wave_target())[0]
+    target_x = r.x[0]
 
-    M = 5000
-    p = PolynomialCurve(M, s, t)
+    p = PolynomialCurve(n, k, trX, trY, target_y, target_x)
     p.run()
+    p.plot()

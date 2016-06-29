@@ -7,27 +7,33 @@ import matplotlib.pyplot as plt
 
 class Randgen:
 
-    def __init__(self, N, sigma):
+    def __init__(self, N, M, sigma):
         self.N = N # Nnumber of random numbers
-        self.u = np.random.uniform(0.0, 1.0, self.N)
+        self.M = M # Number of steps
         self.sigma = sigma
 
-    def sin_wave_input(self):
-        w = np.random.normal(0.0, self.sigma, self.N)
-        s = np.sin(2 * np.pi * self.u) + w
-        return s
+    def sin_wave_y(self):
+        self.x = list(self.__x())
+        for i in range(0, self.M):
+            w = np.random.normal(0.0, self.sigma, self.N)
+            yield np.sin(2 * np.pi * self.x[i]) + w
+
+    def __x(self):
+        for i in range(0, self.M):
+            yield np.random.uniform(0.0, 1.0, self.N)
 
     def sin_wave_target(self):
-        t = np.sin(2 * np.pi * self.u)
-        return t
+        self.x = list(self.__x())
+        for i in range(0, self.M):
+            yield np.sin(2 * np.pi * self.x[i])
 
 if __name__ == '__main__':
-    r = Randgen(100, 0.03)
-    s = r.sin_wave_input()
-    t = r.sin_wave_target()
+    r = Randgen(100, 1000, 0.03)
+    y = list(r.sin_wave_y())
+    x = r.x
 
     fig = plt.figure()
     ax = fig.add_subplot(1,1,1)
 
-    ax.scatter(r.u, t)
+    ax.scatter(x[0], y[0])
     plt.show()
