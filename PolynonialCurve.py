@@ -79,7 +79,7 @@ class PolynomialCurve:
 if __name__ == '__main__':
     # Generate test data
     n = 100000
-    m = 1000
+    m = 10
     k = 9
     sigma = 0.03
 
