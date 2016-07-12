@@ -78,9 +78,9 @@ class PolynomialCurve:
 
 if __name__ == '__main__':
     # Generate test data
-    n = 100000
-    m = 10
-    k = 9
+    n = 1000
+    m = 100
+    k = 10
     sigma = 0.03
 
     r = Randgen.Randgen(m, n, sigma)
@@ -91,4 +91,5 @@ if __name__ == '__main__':
 
     p = PolynomialCurve(n, m, k, trX, trY, target_y, target_x)
     p.run()
-    p.plot()
+    print p.w
+#    p.plot()
