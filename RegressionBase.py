@@ -8,8 +8,9 @@ import tensorflow as tf
 
 class RegressionBase(object):
 
-    def __init__(self, trX, trY, numStep):
+    def __init__(self, trX, trY, numStep, learning_rate):
         self.numStep = numStep
+        self.learning_rate = learning_rate
         self.M = trX.shape[1]
         self.N = trX.shape[0]
         self.trX = trX
@@ -22,7 +23,7 @@ class RegressionBase(object):
         return tf.reduce_mean(tf.square(supervisor_labels_placeholder - output))
 
     def training(self, loss):
-        return tf.train.GradientDescentOptimizer(0.005).minimize(loss)
+        return tf.train.GradientDescentOptimizer(self.learning_rate).minimize(loss)
 
     def run(self):
         self.W = tf.Variable(tf.zeros([self.M, 1]))
@@ -56,6 +57,7 @@ if __name__ == '__main__':
     trY = data['Y2']
 
     numStep = 10000
+    learning_rate = 0.005
 
-    r = RegressionBase(trX, trY, numStep)
+    r = RegressionBase(trX, trY, numStep, learning_rate)
     r.run()
