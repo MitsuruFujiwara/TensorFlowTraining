@@ -22,14 +22,14 @@ class RegressionBase(object):
         return tf.reduce_mean(tf.square(supervisor_labels_placeholder - output))
 
     def training(self, loss):
-        return tf.train.GradientDescentOptimizer(0.03).minimize(loss)
+        return tf.train.GradientDescentOptimizer(0.005).minimize(loss)
 
     def run(self):
         self.W = tf.Variable(tf.zeros([self.M, 1]))
         self.b = tf.Variable([0.])
         supervisor_labels_placeholder = tf.placeholder(tf.float32, shape = (self.N, 1))
         input_placeholder = tf.placeholder(tf.float32, shape = (self.N, self.M))
-        
+
         feed_dict = {input_placeholder: self.trX, supervisor_labels_placeholder: self.trY}
 
         with tf.Session() as sess:
@@ -42,10 +42,11 @@ class RegressionBase(object):
 
             for step in range(self.numStep):
                 sess.run(training_op, feed_dict = feed_dict)
+#                print sess.run(loss, feed_dict = feed_dict)
                 if step % 100 == 0:
                     print sess.run(loss, feed_dict = feed_dict)
-            
-            print "b = " + str(sess.run(self.b[0])) 
+
+            print "b = " + str(sess.run(self.b[0]))
             for i in range(0, self.M):
                 print "W" + str(i) + " = " + str(sess.run(self.W[i, 0]))
 
@@ -54,7 +55,7 @@ if __name__ == '__main__':
     trX = data[['X1', 'X2', 'X3', 'X4']]
     trY = data['Y2']
 
-    numStep = 1000
+    numStep = 10000
 
     r = RegressionBase(trX, trY, numStep)
     r.run()
