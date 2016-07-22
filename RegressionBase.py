@@ -53,7 +53,8 @@ class RegressionBase(object):
     def printProgress(self, sess, step, feed_dict, loss):
         # print training progress
         print "step = " + str(step)\
-        + ", loss = " + str(sess.run(loss, feed_dict = feed_dict)) + " " + str(sess.run(self.b[0])) + " "\
+        + ", loss = " + str(sess.run(loss, feed_dict = feed_dict))\
+        + " " + str(sess.run(self.b[0])) + " "\
         + str(list(sess.run(self.W[i, 0]) for i in range(self.numParameter))).replace("[", ", ").replace("]", ", ")
 
     def printResult(self, sess):

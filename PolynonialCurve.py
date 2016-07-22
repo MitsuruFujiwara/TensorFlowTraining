@@ -29,7 +29,9 @@ class PolynomialCurve(RegressionBase):
         ax = fig.add_subplot(1,1,1)
         x = list(np.linspace(0.0, 1.0, num=101))
         w = self.W_
+        print w[0]
         b = self.b_
+        print b[0]
 
         ax.plot(x, self.plt_y(x, w, b), 'k-', label='fitted line', linewidth=10, alpha=0.3)
         ax.scatter(self.trX, self.trY, label='target data')
@@ -40,10 +42,10 @@ class PolynomialCurve(RegressionBase):
         plt.show()
 
     def plt_y(self, x, w, b):
-        y = 0.0
+        y = b[0]
         for i, t in enumerate(w):
-            y += t * np.power(x, i)
-        return y + b
+            y += t[0] * np.power(x, i + 1)
+        return y
 
 if __name__ == '__main__':
     # Generate test data
@@ -51,11 +53,11 @@ if __name__ == '__main__':
     m = 1 # number of data sets
     sigma = 0.03 # volatility of data set
 
-    r = Randgen.Randgen(n, m, sigma)
+    r = Randgen.Randgen(m, n, sigma)
     trY = pd.Series(list(r.sin_wave_y())).reshape(n, 1)
     trX = pd.Series(r.x).reshape(n, 1)
 
-    numStep = 100000 # number of trainig
+    numStep = 500000 # number of trainig
     numParameter = 9 # order of polynomial
     learning_rate = 0.5
 
