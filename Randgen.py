@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 class Randgen:
 
     def __init__(self, N, M, sigma):
-        self.N = N # Nnumber of random numbers
+        self.N = N # Nnumber of random variables
         self.M = M # Number of steps
         self.sigma = sigma
 

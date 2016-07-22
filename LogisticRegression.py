@@ -20,16 +20,20 @@ class LogisticRegression(RegressionBase):
 
 if __name__ == '__main__':
     data = pd.read_csv('test_data.csv')
-    trX = data[['X1', 'X2', 'X3', 'X4']]
+    trX = data[[\
+    'X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9','X10', 'X11', 'X12',\
+    'X13', 'X14', 'X15', 'X16', 'X17', 'X18', 'X19', 'X20', 'X21','X22', 'X23',\
+    'X24', 'X25', 'X26', 'X27'\
+    ]]
     trY = data['Y']
 
     numStep = 10000
     numParameter = len(trX.columns)
-    learning_rate = 0.5
+    learning_rate = 0.000001
 
     r = LogisticRegression(trX, trY, numStep, numParameter, learning_rate)
     r.run()
-    
+
     # loss = 0.282286
     # b = -6.56112
     # W0 = 0.226928
