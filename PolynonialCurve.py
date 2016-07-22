@@ -36,7 +36,8 @@ class PolynomialCurve:
         y_hypo = self.y(x, w, b)
 
         # Define optimizer
-        optimizer = tf.train.GradientDescentOptimizer(0.5)
+#        optimizer = tf.train.GradientDescentOptimizer(0.5)
+        optimizer = tf.train.AdagradOptimizer(0.5)
         train = optimizer.minimize(self.loss(y_hypo, y))
 
         # For initializing the variables.

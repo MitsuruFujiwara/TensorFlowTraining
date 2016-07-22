@@ -8,8 +8,11 @@ from RegressionBase import RegressionBase
 
 class LogisticRegression(RegressionBase):
 
-    def __init__(self, trX, trY, numStep, learning_rate):
-        RegressionBase.__init__(self, trX, trY, numStep, learning_rate)
+    def __init__(self, trX, trY, numStep, numParameter, learning_rate):
+        RegressionBase.__init__(self, trX, trY, numStep, numParameter, learning_rate)
+
+    def training(self, loss):
+        return tf.train.AdagradOptimizer(self.learning_rate).minimize(loss)
 
     def loss(self, output, supervisor_labels_placeholder):
         x_entropy = tf.nn.sigmoid_cross_entropy_with_logits(output, supervisor_labels_placeholder, name = 'xentropy')
@@ -20,8 +23,16 @@ if __name__ == '__main__':
     trX = data[['X1', 'X2', 'X3', 'X4']]
     trY = data['Y']
 
-    numStep = 500000
-    learning_rate = 0.005
+    numStep = 10000
+    numParameter = len(trX.columns)
+    learning_rate = 0.5
 
-    r = LogisticRegression(trX, trY, numStep, learning_rate)
+    r = LogisticRegression(trX, trY, numStep, numParameter, learning_rate)
     r.run()
+    
+    # loss = 0.282286
+    # b = -6.56112
+    # W0 = 0.226928
+    # W1 = 0.238033
+    # W2 = -0.0118023
+    # W3 = 0.499244

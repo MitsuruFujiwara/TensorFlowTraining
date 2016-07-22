@@ -8,14 +8,18 @@ import tensorflow as tf
 
 class RegressionBase(object):
 
-    def __init__(self, trX, trY, numStep, learning_rate):
-        self.numStep = numStep
-        self.learning_rate = learning_rate
-        self.M = trX.shape[1]
-        self.N = trX.shape[0]
+    def __init__(self, trX, trY, numStep, numParameter, learning_rate):
+        self.N = len(trY)
         self.trX = trX
         self.trY = trY.reshape(self.N, 1)
-
+        self.numStep = numStep
+        self.numParameter = numParameter
+        self.learning_rate = learning_rate
+        self.b = tf.Variable([0.])
+        self.W = tf.Variable(tf.zeros([numParameter, 1]))
+        self.supervisor_labels_placeholder = tf.placeholder(tf.float32, shape = (self.N, None))
+        self.input_placeholder = tf.placeholder(tf.float32, shape = (self.N, None))
+        
     def inference(self, input_placeholder, W, b):
         return tf.matmul(input_placeholder, W) + b
 
@@ -23,34 +27,38 @@ class RegressionBase(object):
         return tf.reduce_mean(tf.square(supervisor_labels_placeholder - output))
 
     def training(self, loss):
-        return tf.train.GradientDescentOptimizer(self.learning_rate).minimize(loss)
+        return tf.train.AdagradOptimizer(self.learning_rate).minimize(loss)
+#        return tf.train.GradientDescentOptimizer(self.learning_rate).minimize(loss)
 
     def run(self):
-        self.W = tf.Variable(tf.zeros([self.M, 1]))
-        self.b = tf.Variable([0.])
-        supervisor_labels_placeholder = tf.placeholder(tf.float32, shape = (self.N, 1))
-        input_placeholder = tf.placeholder(tf.float32, shape = (self.N, self.M))
-
-        feed_dict = {input_placeholder: self.trX, supervisor_labels_placeholder: self.trY}
-
+        feed_dict = {self.input_placeholder: self.trX, self.supervisor_labels_placeholder: self.trY}
         with tf.Session() as sess:
-            output = self.inference(input_placeholder, self.W, self.b)
-            loss = self.loss(output, supervisor_labels_placeholder)
+            output = self.inference(self.input_placeholder, self.W, self.b)
+            loss = self.loss(output, self.supervisor_labels_placeholder)
             training_op = self.training(loss)
-
+            
             init = tf.initialize_all_variables()
             sess.run(init)
-
+            
             for step in range(self.numStep):
                 sess.run(training_op, feed_dict = feed_dict)
-#                print sess.run(loss, feed_dict = feed_dict)
+                # print loss and parameters for each 100 steps
                 if step % 100 == 0:
-                    print "step = " + str(step) + ", loss = " + str(sess.run(loss, feed_dict = feed_dict))\
-                    + " " + str(sess.run(self.b[0])) + str(list(sess.run(self.W[i, 0]) for i in range(0, self.M))).replace("[", ", ").replace("]", ", ") 
-
-            print "b = " + str(sess.run(self.b[0]))
-            for i in range(0, self.M):
-                print "W" + str(i) + " = " + str(sess.run(self.W[i, 0]))
+                    self.printProgress(sess, step, feed_dict, loss)
+                    
+            self.printResult(sess)
+    
+    def printProgress(self, sess, step, feed_dict, loss):
+        # print training progress
+        print "step = " + str(step)\
+        + ", loss = " + str(sess.run(loss, feed_dict = feed_dict)) + " " + str(sess.run(self.b[0])) + " "\
+        + str(list(sess.run(self.W[i, 0]) for i in range(self.numParameter))).replace("[", ", ").replace("]", ", ")  
+        
+    def printResult(self, sess):
+        # print final results
+        print "b = " + str(sess.run(self.b[0]))
+        for i, t in enumerate(sess.run(self.W)):
+            print "W" + str(i + 1) + " = " + str(t[0])
 
 if __name__ == '__main__':
     data = pd.read_csv('test_data.csv')
@@ -58,7 +66,15 @@ if __name__ == '__main__':
     trY = data['Y2']
 
     numStep = 10000
-    learning_rate = 0.005
+    numParameter = len(trX.columns)
+    learning_rate = 0.5
 
-    r = RegressionBase(trX, trY, numStep, learning_rate)
+    r = RegressionBase(trX, trY, numStep, numParameter, learning_rate)
     r.run()
+    
+    # loss = 114.568
+    # b = -4.69642
+    # W0 = 0.335111
+    # W1 = 0.319222
+    # W2 = 0.152218
+    # W3 = 0.641776
