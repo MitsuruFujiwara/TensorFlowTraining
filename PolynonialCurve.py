@@ -57,10 +57,21 @@ if __name__ == '__main__':
     trY = pd.Series(list(r.sin_wave_y())).reshape(n, 1)
     trX = pd.Series(r.x).reshape(n, 1)
 
-    numStep = 500000 # number of trainig
+    numStep = 50000 # number of trainig
     numParameter = 9 # order of polynomial
     learning_rate = 0.5
 
     p = PolynomialCurve(trX, trY, numStep, numParameter, learning_rate)
     p.run()
     p.plot()
+
+    # b = -0.0430572
+    # W1 = 8.05416
+    # W2 = -14.3491
+    # W3 = -7.77215
+    # W4 = 3.11908
+    # W5 = 8.83884
+    # W6 = 8.55041
+    # W7 = 4.24415
+    # W8 = -2.04174
+    # W9 = -8.74214
